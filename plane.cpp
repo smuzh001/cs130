@@ -7,7 +7,12 @@
 // points outside.  If the ray starts on the "inside" side of the plane, be sure
 // to record a hit with t=0 as the first entry in hits.
 Hit Plane::Intersection(const Ray& ray, int part) const
-{
+{	//by solving t = ((x0 -e) * n) / (u * n) you need to make sure u * n doesnt equal 0
+    	if( dot(ray.endpoint, this->normal) != 0){
+		double t = (dot((this->x1 - ray.endpoint),this->normal) / dot(ray.direction, this->normal));
+		return {this,t,part};
+	}
+else
     TODO;
     return {0,0,0};
 }
