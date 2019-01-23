@@ -10,10 +10,11 @@ Hit Plane::Intersection(const Ray& ray, int part) const
 {	//by solving t = ((x0 -e) * n) / (u * n) you need to make sure u * n doesnt equal 0
     	if( dot(ray.endpoint, this->normal) != 0){
 		double t = (dot((this->x1 - ray.endpoint),this->normal) / dot(ray.direction, this->normal));
-		return {this,t,part};
+		if(t > small_t)
+			return {this,t,part};
+
 	}
-else
-    TODO;
+   //TODO;
     return {0,0,0};
 }
 
