@@ -6,25 +6,29 @@
 Hit Sphere::Intersection(const Ray& ray, int part) const
 {
    // TODO;
-	double a = dot(ray.direction, ray.direction);
+	Hit SphereHit{NULL, 0, -1};
+
+	double a = ray.direction.magnitude_squared(); 
 	double b = 2 * dot(( ray.endpoint - this->center ) ,ray.direction);
-	double c = dot((ray.endpoint - this->center), (ray.endpoint - this->center)) - (this->radius *this->radius);
-	double d = (b*b)- (4 * a * c);
-	
+	double c = ((ray.endpoint - center).magnitude_squared()) - (radius * radius);
+	double d = (b*b) - (4 * a * c);
+	//checks for non complex numbers
 	if (d < 0){
-		return {NULL, 0, 0};
+		return SphereHit;
 	}  	
-	double t1 = ((-1)*b + pow(d , 0.5)) / (2 * a);
-	double t2 = ((-1)*b + pow(d, 0.5)) / (2 * a);
+	double t1 = (-b + sqrt(d)) / (2 * a);
+	double t2 = (-b - sqrt(d)) / (2 * a);
 	if(t1 < t2 && t1 >= small_t){
-		return {this, t1, part};
+		SphereHit.object = this;
+		SphereHit.dist = t1;
+		
 	}
 	else if(t2 <= t1 && t2 >= small_t){
-		return {this, t2, part};
+		SphereHit.object = this;
+		SphereHit.dist = t2;
 	}
-	else{
-    		return {NULL,0,0};
-	}
+	return SphereHit;
+
 
 }
 
@@ -33,7 +37,7 @@ vec3 Sphere::Normal(const vec3& point, int part) const
     vec3 normal;
    // TODO; // compute the normal direction
 	//according to equation in book.
-    	normal = (point - this->center) / radius;
+    	normal = (point - this->center).normalized();
 	return normal;
 }
 
