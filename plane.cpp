@@ -10,10 +10,13 @@ Hit Plane::Intersection(const Ray& ray, int part) const
 {	//by solving t = ((x0 -e) * n) / (u * n) you need to make sure u * n doesnt equal 0
     	Hit PlaneHit{NULL,0,-1};
 
-	if( dot(ray.endpoint, this->normal) == 0)
+	double UdotN = dot(ray.direction, normal);
+	//the ray must not be perpendicular to the plane, otherwise it is not a hit.
+	if(!UdotN){
 		return PlaneHit;	
-	
+	}
 	double t = (dot((this->x1 - ray.endpoint),this->normal) / dot(ray.direction, this->normal));
+	//if t is less than the threshold of a valid hit, then we don't consider it
 	if(t < small_t){
 		return PlaneHit;
 	}
