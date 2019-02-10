@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
+#include "plane.h"
 
 // Consider a triangle to intersect a ray if the ray intersects the plane of the
 // triangle with barycentric weights in [-weight_tolerance, 1+weight_tolerance]
@@ -42,17 +43,47 @@ void Mesh::Read_Obj(const char* file)
 // Check for an intersection against the ray.  See the base class for details.
 Hit Mesh::Intersection(const Ray& ray, int part) const
 {
-    TODO;
-    return {};
+	Hit Tri_Hit {NULL, 0, 0};
+	if(part >= 0){
+		if(Intersect_Triangle(ray, part, Tri_Hit.dist)){
+			Tri_Hit.object = this;
+			Tri_Hit.part = part;
+		}
+	}
+	else{	
+		//iterate through all triangles on our mesh, return the triangle with the smallest distance to intersection.
+		Tri_Hit.dist = std::numeric_limits<double>::max(); 
+		for(int i = 0; i < triangles.size(); i++){
+			double temp;
+			if(Intersect_Triangle(ray, i, temp))
+				if(temp < Tri_Hit.dist){
+					Tri_Hit.object = this;
+					Tri_Hit.dist = temp;
+					Tri_Hit.part = i;
+				}
+		}
+	}
+	
+   
+
+// TODO;
+    return Tri_Hit;
 }
 
 // Compute the normal direction for the triangle with index part.
+/**/
 vec3 Mesh::Normal(const vec3& point, int part) const
 {
     assert(part>=0);
-    TODO;
-    return vec3();
+	vec3 A = vertices[triangles[part][0]];
+	vec3 B = vertices[triangles[part][1]];
+	vec3 C = vertices[triangles[part][2]];
+	vec3 N = cross((A-B),(A-C)).normalized();
+	return N;
+//    TODO;
+
 }
+/**/
 
 // This is a helper routine whose purpose is to simplify the implementation
 // of the Intersection routine.  It should test for an intersection between
@@ -68,7 +99,40 @@ vec3 Mesh::Normal(const vec3& point, int part) const
 // two triangles.
 bool Mesh::Intersect_Triangle(const Ray& ray, int tri, double& dist) const
 {
-    TODO;
+//    TODO
+	vec3 A = vertices[triangles[tri][0]];
+	vec3 B = vertices[triangles[tri][1]];
+	vec3 C = vertices[triangles[tri][2]];
+
+	Plane p(A, Normal(B,tri));
+	Hit tri_hit = p.Intersection(ray, tri);
+	//quick check that the ray is not parallel to the triangle
+	if(!tri_hit.object){
+		return false;
+	}
+	vec3 Intersection_Point = ray.Point(dist);
+	//using the eq givin in class y = Beta(v) + Gamma(w) - ut
+	vec3 u = ray.direction;
+	vec3 v = B - A;
+	vec3 w = C - A;
+	vec3 y = Intersection_Point - A;
+	double denominator = dot(cross(u,v),w);
+	// u X v * w == w X u * v == v X w * u
+	//so since they are all equal, we can reuse one for solving beta plus check
+	//that denominator != 0
+	if(!denominator)
+		return false;
+
+	double Gamma = dot(cross(u,v), y) / denominator;
+	double Beta = dot(cross(w,u), y) / denominator;
+	double Alpha = 1 - Beta - Gamma;
+
+	if(Alpha > -weight_tol && Beta > -weight_tol && Gamma > -weight_tol){
+		dist = tri_hit.dist;
+		return true;
+	}
+
+
     return false;
 }
 
