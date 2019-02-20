@@ -20,7 +20,14 @@ void initialize_render(driver_state& state, int width, int height)
     state.image_height=height;
     state.image_color=0;
     state.image_depth=0;
-    std::cout<<"TODO: allocate and initialize state.image_color and state.image_depth."<<std::endl;
+	state.image_color = new pixel[width * height]; 
+	//set each pixel in our render to be black
+	for(int i = 0; i < width * height; i++){
+		state.image_color[i] = make_pixel(0,0,0);
+	}
+
+
+    //std::cout<<"TODO: allocate and initialize state.image_color and state.image_depth."<<std::endl;
 }
 
 // This function will be called to render the data that has been stored in this class.
@@ -32,7 +39,38 @@ void initialize_render(driver_state& state, int width, int height)
 //   render_type::strip -    The vertices are to be interpreted as a triangle strip.
 void render(driver_state& state, render_type type)
 {
-    std::cout<<"TODO: implement rendering."<<std::endl;
+data_geometry* Geometry;
+int index = 0;
+int NumberOfTriangles = 0;
+	switch(type){
+		case render_type::triangle :
+			Geometry = new data_geometry[3];
+			NumberOfTriangles = state.num_vertices / 3;
+			for(int j = 0; j > NumberOfTriangles; j++){
+				for(int i = 0; i < 3; i++){
+					//vertex_data * floats_per_vertex = size of 1 vertex entry in array
+					//you are just setting each pointer to point to the specific start of each new vertex 
+					//you increment your index by the size of floats per vertex so the next data_geometry will point to the next vertex
+					Geometry[i].data = state.vertex_data + index;
+					index += state.floats_per_vertex;
+				}
+				rasterize_triangle(state,(const data_geometry**)&Geometry);
+				//rasterize_triangle(state,(const)&Geometry);
+
+			}
+			break;
+		case render_type::indexed:
+			break;
+		case render_type::fan:
+			break;
+		case render_type::strip:
+ 			break;
+		default: printf("invalid type\n");
+		
+	}   
+		delete[] Geometry;
+
+// std::cout<<"TODO: implement rendering."<<std::endl;
 }
 
 
@@ -56,6 +94,7 @@ void clip_triangle(driver_state& state, const data_geometry* in[3],int face)
 // fragments, calling the fragment shader, and z-buffering.
 void rasterize_triangle(driver_state& state, const data_geometry* in[3])
 {
-    std::cout<<"TODO: implement rasterization"<<std::endl;
+
+    //std::cout<<"TODO: implement rasterization"<<std::endl;
 }
 
