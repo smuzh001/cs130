@@ -1,6 +1,6 @@
 #ifndef __DRIVER__
 #define __DRIVER__
-
+ 
 #include "common.h"
 
 struct driver_state
